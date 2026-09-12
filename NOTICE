@@ -1,0 +1,107 @@
+anything2explainer-lite
+=======================
+
+Required Notice: Copyright (c) 2026 Vincent Wei (https://github.com/Vincentwei1021/anything2explainer)
+
+This package is a MODIFIED DERIVATIVE of anything2explainer (the "lite" tier).
+
+  Upstream:          https://github.com/Vincentwei1021/anything2explainer
+  Upstream license:  PolyForm Noncommercial License 1.0.0 (full text: ./LICENSE)
+
+-------------------------------------------------------------------------------
+1. Modifications relative to upstream
+-------------------------------------------------------------------------------
+
+  - Compressed the per-group mandatory-read list (upstream ~39.4K tok -> lite
+    8.8-9.3K tok, about -77%). The read list is documented in
+    reference/prompts-lite.md; the lite reading set is described in SKILL.md.
+  - Added two zero-image machine gates that upstream does not ship:
+      * template/scripts/zorder_audit.py  (layer-order / occlusion auditor)
+      * template/scripts/lite_gate.py     (single-command 4-axis gate)
+  - Added three hard rules to the build contract
+    (reference/build-contract-lite.md sections 12-14): enter-order = draw-order;
+    coordinates must be literals; delivery must report ink-box / max-overlap /
+    Z1-Z2 findings into BUILD_NOTES.
+  - Added lite-specific reference docs: build-contract-lite.md, qc-lite.md,
+    prompts-lite.md, lessons-lite.md, ENGINE.md.
+  - Bundled copies of the upstream engine (template/), upstream example assets
+    (examples/) and additional upstream reference docs (style-guide.md,
+    motion-vocabulary.md, composition-and-light.md, narration-storyboard.md,
+    research-brief.md, common-api.md, prompts.md, lessons.md) so that this
+    package is self-contained and installable on its own.
+  - Rewrote the bootstrap entry point (scripts/lite_bootstrap.py).
+  - Renamed the upstream README files to UPSTREAM_README.md /
+    UPSTREAM_README_zh.md (archived verbatim, with a note at the top saying they
+    describe the full tier); this package's own README is README.md (English)
+    plus README_zh.md (Simplified Chinese).
+  - Replaced hard-coded, machine-specific absolute paths (Python / Node / ffmpeg
+    locations) in the ported scripts with environment-variable overrides and
+    generic fallbacks (A2E_PYTHON / A2E_NODE / A2E_FFMPEG, then PATH, then
+    standard install locations). No personal paths remain in this package.
+  - Added WINDOWS-PORT.md documenting the port.
+
+  No upstream file was removed from the license/citation layer: LICENSE and
+  CITATION.cff are preserved verbatim.
+
+-------------------------------------------------------------------------------
+2. Notice requirements that travel with this software
+-------------------------------------------------------------------------------
+
+  As required by the PolyForm Noncommercial License 1.0.0:
+
+  (a) Anyone who receives any part of this software must also receive these
+      terms (or the URL https://polyformproject.org/licenses/noncommercial/1.0.0)
+      and the "Required Notice" line above. Do not strip LICENSE, NOTICE or
+      CITATION.cff.
+  (b) Noncommercial use is free. Any commercial use of the toolkit requires
+      prior authorization from the upstream author.
+  (c) There is no sublicensing. This derivative stays under PolyForm
+      Noncommercial 1.0.0 and must NOT be relicensed (e.g. as MIT/Apache-2.0)
+      or offered for sale, rent or sublicense as a derivative of the toolkit.
+  (d) Videos produced with this toolkit belong to their creators.
+      This clause governs the toolkit, not your renders.
+
+-------------------------------------------------------------------------------
+3. Third-party components
+-------------------------------------------------------------------------------
+
+  Remotion 4.0.507 (@remotion/cli, @remotion/media, remotion)
+    Declared as npm dependencies in template/package.json. NOT bundled in this
+    package: node_modules is excluded (see .gitignore) and installed by the user
+    at bootstrap time. Remotion is governed by its own license:
+      - free for individuals, non-profit organizations, and for-profit
+        organizations with up to 3 employees;
+      - a Company License is required for larger for-profit organizations;
+      - copying or modifying Remotion code in order to sell, rent, license,
+        relicense or sublicense your own derivative of Remotion is not allowed.
+    See https://www.remotion.dev/license . Because Remotion is not
+    redistributed here, each user installs it and complies with its terms
+    independently.
+
+  Fonts - template/public/fonts/ (NotoSansSC.ttf, Orbitron[wght].ttf,
+  Exo2-Italic.ttf, Audiowide-Regular.ttf)
+    SIL Open Font License 1.1. Copyright notices, Reserved Font Names and the
+    full license text are in template/public/fonts/LICENSE.md, which must be
+    kept. Redistribution, embedding and modification are permitted; modified
+    versions may not use the Reserved Font Names; the fonts may not be sold on
+    their own. Documents/renders created with the fonts are unrestricted.
+
+  Frame images - examples/rag/frames/*.jpg, examples/contrast/*.jpg
+    Still frames from the upstream reference film, distributed as part of the
+    upstream toolkit. They may travel with a copy of this toolkit, but must not
+    be reused as stock footage, as assets in another product, or as a
+    standalone asset pack.
+
+  Visual language
+    The look of the upstream toolkit is inspired by Douyin creator
+    @图灵宇宙. The upstream author states the style is only referenced and that
+    every frame is drawn in code; no frames, assets or project files of that
+    creator are used. Credit is given here and in the upstream README.
+
+-------------------------------------------------------------------------------
+4. Reporting
+-------------------------------------------------------------------------------
+
+  This is an unofficial derivative and is not endorsed by the upstream author.
+  Upstream repository: https://github.com/Vincentwei1021/anything2explainer
+  If the upstream author objects to this derivative in any way, take it down.

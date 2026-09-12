@@ -1,0 +1,46 @@
+# 换行符纪律（Windows 上尤其重要）
+#
+# 背景：本机 git 全局配置是 core.autocrlf=true，若不显式约束，检出时会把
+# .sh 写成 CRLF —— shebang 「#!/usr/bin/env bash」 后面多了 \r，在 Git Bash /
+# Linux / macOS 上会直接报 bad interpreter，脚本全废。
+#
+# 规则：仓库内一律存 LF；下面点名的类型检出时也保持 LF。
+# 二进制类型禁止任何转换，否则字体/图片会损坏。
+
+* text=auto
+
+# 可执行脚本：必须 LF
+*.sh    text eol=lf
+*.bash  text eol=lf
+*.py    text eol=lf
+
+# 源码与文档：LF，避免跨平台 diff 抖动
+*.ts    text eol=lf
+*.tsx   text eol=lf
+*.js    text eol=lf
+*.jsx   text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+*.txt   text eol=lf
+*.cff   text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.gitattributes text eol=lf
+*.gitignore      text eol=lf
+
+# 二进制：禁止换行转换
+*.ttf   binary
+*.otf   binary
+*.woff  binary
+*.woff2 binary
+*.jpg   binary
+*.jpeg  binary
+*.png   binary
+*.gif   binary
+*.webp  binary
+*.mp4   binary
+*.mov   binary
+*.wav   binary
+*.mp3   binary
+*.pdf   binary
+*.zip   binary
