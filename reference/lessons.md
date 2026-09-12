@@ -659,3 +659,58 @@ PowerShell 里 `& python ... | Out-File`：python 的 UTF-8 字节**会先被控
 
 **附带：离线环境下分析字体不必装 fontTools**——`struct` 手解 SFNT 表目录即可拿到
 family/subfamily/version/license 与 `fvar` 轴信息（本 skill 的发布前核查就是这么做的）。
+
+### 教训 9：发布验收要**逐 blob 比 SHA**，并且**只信字节不信管道**
+"仓库上传完了"不等于"仓库对了"。只有一种口径能证明完整性：
+
+```python
+# 两边都取 git ls-tree -r，比对每个 path 的 blob SHA
+git ls-tree -r FETCH_HEAD      # 远程
+git ls-tree -r main            # 本地
+# 228/228 全等才算过
+```
+比 SHA 而不是比文件大小/内容——SHA 是 git 自己算的内容寻址，等值即逐字节相同。
+**别读工作区文件来比**（工作区有 CRLF 转换、有未提交改动，不是真相）。
+
+**同时用两个独立手段复核**：
+1. 拉一个**全新 clone** 到临时目录，在**里面**跑 `python scripts/lite_bootstrap.py --check`
+   —— 这才是别人拿到仓库后的真实体验，比在任何已有目录里自检都可信。
+2. 下载远程的**大二进制**（字体/图片）单独算 sha256，与本地对。
+
+**验换行符时，`| grep` 会骗你**：`git cat-file blob X | grep -c $'\r'` 实测报 31，
+与 `git ls-files --eol` 的 `i/lf` **直接矛盾**。改用 Python 读字节：
+```python
+open(p,'rb').read().count(b'\r\n')   # → 0，与 i/lf 一致
+```
+→ 通用原则：**凡是经过 shell 管道/终端的数据都可能被转换，字节级结论必须用程序直接读。**
+（这是教训 7 的延伸，同一坑两次踩到。）
+
+**附带两个易误判的信号**：
+- `GET /repos/...` 的 `size` 字段（单位 KB）在大二进制仓库上更新滞后，
+  看到 `size: 7` 别慌；以 `contents/<path>` 返回的 `size` 为准。
+- 同名文件单次请求返回 `000`（非 404）多为网络抖动，**重试 2–3 次**再下结论。
+
+### 教训 10：本地与远程**历史无关**时，不要 merge，要重放
+网页上传 / Contents API 产生的 commit 与本地 git 提交**没有共同祖先**，
+`git merge` 会直接 `fatal: refusing to merge unrelated histories`。
+
+正确解法（保持线性、不丢本地未推内容）：
+```bash
+git checkout -B sync-tmp FETCH_HEAD        # 站到远程基线上
+git add <你本地独有的改动>                  # 把本地改动作为新提交重放
+git commit -m "..."
+git push origin sync-tmp:refs/heads/main   # 快进推送
+git branch -D sync-tmp                     # 清理
+```
+**不要用 `--force`**：远程那个"Add files via upload"提交里可能有你去重不完全的内容，
+强推会把它抹掉。先 `git ls-tree -r` 比一遍两边的 blob，确认差异**只有你预期的那几个**再动手。
+
+### 教训 11：移植上游脚本时，**兜底路径里的名字也要改**
+`slice.py` 的 `load_api_names()` 有多层路径回退，最后一层写死了上游 skill 名
+（`~/.workbuddy/skills/anything2explainer/reference/api-index.md`）。
+本包目录叫 `anything2explainer-lite`，**这一层永远命中不了**——功能不报错、不崩溃，
+只是静默少了一层过滤，极难发现。
+
+→ 移植后除了改主逻辑，**把"兜底/回退/默认值"里的字符串也过一遍**，尤其是路径与包名。
+→ 判据：任何回退层都应该**有可能命中**。命中不了的兜底不是稳健性，是噪声。
+
