@@ -198,15 +198,17 @@ TICK = re.compile(r'`([^`]{2,32})`')
 
 def load_api_names(root=None):
     """从 api-index.md 读组件/常量/函数名，用于把 API 名从「事实 token」里剔除。
-    多路径回退：环境变量 A2E_SKILL → 自身位置推导（template/scripts → skill 根）→ 项目根。
+    多路径回退：环境变量 A2E_SKILL → 自身位置推导（template/scripts → skill 根）
+    → 已安装的 skill 目录（lite 与上游各试一次）→ 项目根。
     找不到就返回空集（仅少一层过滤，不影响可用性）。"""
     here = os.path.dirname(os.path.abspath(__file__))
     cands = []
     if os.environ.get('A2E_SKILL'):
         cands.append(os.path.join(os.environ['A2E_SKILL'], 'reference', 'api-index.md'))
     cands.append(os.path.join(os.path.dirname(os.path.dirname(here)), 'reference', 'api-index.md'))
-    cands.append(os.path.expanduser(os.path.join('~', '.workbuddy', 'skills',
-                                                'anything2explainer', 'reference', 'api-index.md')))
+    for skill_name in ('anything2explainer-lite', 'anything2explainer'):
+        cands.append(os.path.expanduser(os.path.join('~', '.workbuddy', 'skills',
+                                                     skill_name, 'reference', 'api-index.md')))
     if root:
         cands.append(os.path.join(root, 'reference', 'api-index.md'))
     t = ''
